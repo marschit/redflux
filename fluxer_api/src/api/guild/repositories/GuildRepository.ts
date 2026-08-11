@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import type {EmojiID, GuildID, RoleID, StickerID, UserID} from '@app/api/BrandedTypes';
+import type {EmojiID, GuildID, RoleID, SoundboardSoundID, StickerID, UserID} from '@app/api/BrandedTypes';
 import {enqueueRemoveThreadMemberships} from '@app/api/channel/threads/ThreadJobs';
 import {
 	BatchBuilder,
@@ -17,6 +17,7 @@ import {
 	GUILD_EMOJI_COLUMNS,
 	GUILD_MEMBER_COLUMNS,
 	GUILD_ROLE_COLUMNS,
+	GUILD_SOUNDBOARD_SOUND_COLUMNS,
 	GUILD_STICKER_COLUMNS,
 	type GuildAuditLogRow,
 	type GuildBanByEmailRow,
@@ -28,6 +29,7 @@ import {
 	type GuildMembershipMetadataRow,
 	type GuildRoleRow,
 	type GuildRow,
+	type GuildSoundboardSoundRow,
 	type GuildStickerRow,
 } from '@app/api/database/types/GuildTypes';
 import {isTainted} from '@app/api/experiment/ChannelThreadsGate';
@@ -42,6 +44,7 @@ import {GuildBan} from '@app/api/models/GuildBan';
 import {GuildEmoji} from '@app/api/models/GuildEmoji';
 import {GuildMember} from '@app/api/models/GuildMember';
 import {GuildRole} from '@app/api/models/GuildRole';
+import {GuildSoundboardSound} from '@app/api/models/GuildSoundboardSound';
 import {GuildSticker} from '@app/api/models/GuildSticker';
 import {
 	GuildAuditLogs,
@@ -57,6 +60,8 @@ import {
 	GuildMembersByUserId,
 	GuildMembershipMetadata,
 	GuildRoles,
+	GuildSoundboardSounds,
+	GuildSoundboardSoundsBySoundId,
 	GuildStickers,
 	GuildStickersByStickerId,
 	Guilds,
@@ -173,6 +178,15 @@ const FETCH_GUILD_STICKER_BY_ID_QUERY = GuildStickers.selectCql({
 
 const FETCH_GUILD_STICKER_BY_STICKER_ID_ONLY_QUERY = GuildStickersByStickerId.selectCql({
 	where: GuildStickersByStickerId.where.eq('sticker_id'),
+	limit: 1,
+});
+
+const FETCH_GUILD_SOUNDBOARD_SOUNDS_BY_GUILD_ID_QUERY = GuildSoundboardSounds.selectCql({
+	where: GuildSoundboardSounds.where.eq('guild_id'),
+});
+
+const FETCH_GUILD_SOUNDBOARD_SOUND_BY_ID_QUERY = GuildSoundboardSounds.selectCql({
+	where: [GuildSoundboardSounds.where.eq('guild_id'), GuildSoundboardSounds.where.eq('sound_id')],
 	limit: 1,
 });
 
@@ -754,6 +768,52 @@ export class GuildRepository {
 			}),
 		);
 		batch.addPrepared(GuildStickersByStickerId.deleteByPk({sticker_id: stickerId}));
+		await batch.execute();
+	}
+
+	async getSoundboardSound(soundId: SoundboardSoundID, guildId: GuildID): Promise<GuildSoundboardSound | null> {
+		const sound = await fetchOne<GuildSoundboardSoundRow>(FETCH_GUILD_SOUNDBOARD_SOUND_BY_ID_QUERY, {
+			guild_id: guildId,
+			sound_id: soundId,
+		});
+		return sound ? new GuildSoundboardSound(sound) : null;
+	}
+
+	async listSoundboardSounds(guildId: GuildID): Promise<Array<GuildSoundboardSound>> {
+		const sounds = await fetchMany<GuildSoundboardSoundRow>(FETCH_GUILD_SOUNDBOARD_SOUNDS_BY_GUILD_ID_QUERY, {
+			guild_id: guildId,
+		});
+		return sounds.map((sound) => new GuildSoundboardSound(sound));
+	}
+
+	async upsertSoundboardSound(data: GuildSoundboardSoundRow): Promise<GuildSoundboardSound> {
+		const guildId = data.guild_id;
+		const soundId = data.sound_id;
+		const result = await executeVersionedUpdate<GuildSoundboardSoundRow, 'guild_id' | 'sound_id'>(
+			async () =>
+				fetchOne<GuildSoundboardSoundRow>(FETCH_GUILD_SOUNDBOARD_SOUND_BY_ID_QUERY, {
+					guild_id: guildId,
+					sound_id: soundId,
+				}),
+			(current) => ({
+				pk: {guild_id: guildId, sound_id: soundId},
+				patch: buildPatchFromData(data, current, GUILD_SOUNDBOARD_SOUND_COLUMNS, ['guild_id', 'sound_id']),
+			}),
+			GuildSoundboardSounds,
+		);
+		await upsertOne(GuildSoundboardSoundsBySoundId.insert(data));
+		return new GuildSoundboardSound({...data, version: result.finalVersion ?? 1});
+	}
+
+	async deleteSoundboardSound(guildId: GuildID, soundId: SoundboardSoundID): Promise<void> {
+		const batch = new BatchBuilder();
+		batch.addPrepared(
+			GuildSoundboardSounds.deleteByPk({
+				guild_id: guildId,
+				sound_id: soundId,
+			}),
+		);
+		batch.addPrepared(GuildSoundboardSoundsBySoundId.deleteByPk({sound_id: soundId}));
 		await batch.execute();
 	}
 

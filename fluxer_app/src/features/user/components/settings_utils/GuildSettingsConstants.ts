@@ -16,6 +16,7 @@ import {
 	type Icon,
 	type IconWeight,
 	LinkIcon,
+	MusicNoteIcon,
 	ProhibitIcon,
 	ShieldIcon,
 	SmileyIcon,
@@ -34,6 +35,11 @@ const STICKERS_DESCRIPTOR = msg({
 	message: 'Stickers',
 	context: 'community-settings-tab',
 	comment: 'Community settings tab for managing custom stickers uploaded to the community.',
+});
+const SOUNDBOARD_DESCRIPTOR = msg({
+	message: 'Soundboard',
+	context: 'community-settings-tab',
+	comment: 'Community settings tab for managing soundboard sounds uploaded to the community.',
 });
 const OVERVIEW_DESCRIPTOR = msg({
 	message: 'Overview',
@@ -92,6 +98,7 @@ export type GuildSettingsTabType =
 	| 'roles'
 	| 'emoji'
 	| 'stickers'
+	| 'soundboard'
 	| 'moderation'
 	| 'audit_log'
 	| 'webhooks'
@@ -170,6 +177,13 @@ const GUILD_SETTINGS_TABS_DESCRIPTORS: Array<GuildSettingsTabDescriptor> = [
 		category: 'expressions',
 		label: STICKERS_DESCRIPTOR,
 		icon: StickerIcon,
+		permission: [Permissions.CREATE_EXPRESSIONS, Permissions.MANAGE_EXPRESSIONS],
+	},
+	{
+		type: 'soundboard',
+		category: 'expressions',
+		label: SOUNDBOARD_DESCRIPTOR,
+		icon: MusicNoteIcon,
 		permission: [Permissions.CREATE_EXPRESSIONS, Permissions.MANAGE_EXPRESSIONS],
 	},
 	{

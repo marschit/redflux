@@ -13,6 +13,7 @@ import type {GuildBan} from '@app/api/models/GuildBan';
 import type {GuildEmoji} from '@app/api/models/GuildEmoji';
 import type {GuildMember} from '@app/api/models/GuildMember';
 import type {GuildRole} from '@app/api/models/GuildRole';
+import type {GuildSoundboardSound} from '@app/api/models/GuildSoundboardSound';
 import type {GuildSticker} from '@app/api/models/GuildSticker';
 import {hiddenGuildMember, isHiddenPartial} from '@app/api/user/ProfileVisibility';
 import type {
@@ -24,6 +25,10 @@ import type {
 import type {GuildBanResponse, GuildMemberResponse} from '@fluxer/schema/src/domains/guild/GuildMemberSchemas';
 import type {GuildPartialResponse, GuildResponse} from '@fluxer/schema/src/domains/guild/GuildResponseSchemas';
 import type {GuildRoleResponse} from '@fluxer/schema/src/domains/guild/GuildRoleSchemas';
+import type {
+	GuildSoundboardSoundResponse,
+	GuildSoundboardSoundWithUserResponse,
+} from '@fluxer/schema/src/domains/guild/GuildSoundboardSchemas';
 import type {UserPartialResponse} from '@fluxer/schema/src/domains/user/UserResponseSchemas';
 
 export function mapGuildToPartialResponse(guild: Guild): GuildPartialResponse {
@@ -210,6 +215,45 @@ function mapBanWithUser(ban: GuildBan, userPartial: UserPartialResponse): GuildB
 		banned_at: ban.bannedAt.toISOString(),
 		expires_at: ban.expiresAt ? ban.expiresAt.toISOString() : null,
 	};
+}
+
+export function mapGuildSoundboardSoundToResponse(sound: GuildSoundboardSound): GuildSoundboardSoundResponse {
+	return {
+		id: sound.id.toString(),
+		name: sound.name,
+		volume: sound.volume,
+		emoji_id: sound.emojiId ? sound.emojiId.toString() : null,
+		emoji_name: sound.emojiName,
+		guild_id: sound.guildId.toString(),
+		user_id: sound.creatorId.toString(),
+	};
+}
+
+function mapSoundboardSoundWithUser(
+	sound: GuildSoundboardSound,
+	userPartial: UserPartialResponse,
+): GuildSoundboardSoundWithUserResponse {
+	return {
+		id: sound.id.toString(),
+		name: sound.name,
+		volume: sound.volume,
+		emoji_id: sound.emojiId ? sound.emojiId.toString() : null,
+		emoji_name: sound.emojiName,
+		guild_id: sound.guildId.toString(),
+		user: userPartial,
+	};
+}
+
+export async function mapGuildSoundboardSoundsWithUsersToResponse(
+	sounds: Array<GuildSoundboardSound>,
+	userCacheService: Pick<UserCacheService, 'getUserPartialResponses'>,
+	requestCache: RequestCache,
+): Promise<Array<GuildSoundboardSoundWithUserResponse>> {
+	const userIds = [...new Set(sounds.map((sound) => sound.creatorId))];
+	const userPartials = await userCacheService.getUserPartialResponses(userIds, requestCache);
+	return sounds
+		.filter((sound) => userPartials.has(sound.creatorId))
+		.map((sound) => mapSoundboardSoundWithUser(sound, userPartials.get(sound.creatorId)!));
 }
 
 export async function mapGuildBansToResponse(

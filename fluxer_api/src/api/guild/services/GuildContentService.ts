@@ -5,6 +5,7 @@ import type {GuildRepository} from '@app/api/guild/repositories/GuildRepository'
 import {ContentHelpers} from '@app/api/guild/services/content/ContentHelpers';
 import {EmojiService} from '@app/api/guild/services/content/EmojiService';
 import {ExpressionAssetPurger} from '@app/api/guild/services/content/ExpressionAssetPurger';
+import {SoundboardService} from '@app/api/guild/services/content/SoundboardService';
 import {StickerService} from '@app/api/guild/services/content/StickerService';
 import type {AvatarService} from '@app/api/infrastructure/AvatarService';
 import type {IAssetDeletionQueue} from '@app/api/infrastructure/IAssetDeletionQueue';
@@ -17,6 +18,7 @@ export class GuildContentService {
 	private readonly contentHelpers: ContentHelpers;
 	readonly emojis: EmojiService;
 	readonly stickers: StickerService;
+	readonly soundboard: SoundboardService;
 
 	constructor(
 		guildRepository: GuildRepository,
@@ -49,6 +51,14 @@ export class GuildContentService {
 			this.contentHelpers,
 			expressionAssetPurger,
 			limitConfigService,
+		);
+		this.soundboard = new SoundboardService(
+			guildRepository,
+			userCacheService,
+			gatewayService,
+			avatarService,
+			snowflakeService,
+			this.contentHelpers,
 		);
 	}
 }

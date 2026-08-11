@@ -101,6 +101,9 @@ const PRESENTERS = {
 	[AuditLogActionType.THREAD_CREATE]: presentThreadCreate,
 	[AuditLogActionType.THREAD_UPDATE]: presentThreadUpdate,
 	[AuditLogActionType.THREAD_DELETE]: presentThreadDelete,
+	[AuditLogActionType.SOUNDBOARD_SOUND_CREATE]: presentUnknownAction,
+	[AuditLogActionType.SOUNDBOARD_SOUND_UPDATE]: presentUnknownAction,
+	[AuditLogActionType.SOUNDBOARD_SOUND_DELETE]: presentUnknownAction,
 } satisfies Record<AuditLogActionType, AuditLogPresenter>;
 
 function presentUnknownAction(entry: GuildAuditLogEntryResponse): AuditLogDomainResult {
