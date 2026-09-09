@@ -26,6 +26,7 @@ import QuickSwitcher from '@app/features/search/state/QuickSwitcher';
 import ThreadGuilds from '@app/features/threads/state/ThreadGuilds';
 import UserProfile from '@app/features/user/state/UserProfile';
 import Soundboard from '@app/features/soundboard/state/Soundboard';
+import UserProfile from '@app/features/user/state/UserProfile';
 import MediaEngine from '@app/features/voice/engine/MediaEngineFacade';
 import Webhooks from '@app/features/webhook/state/Webhooks';
 import type {Guild} from '@fluxer/schema/src/domains/guild/GuildResponseSchemas';

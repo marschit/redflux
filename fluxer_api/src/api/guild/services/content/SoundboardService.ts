@@ -222,7 +222,7 @@ export class SoundboardService {
 		try {
 			audioBuffer = new Uint8Array(Buffer.from(base64Data, 'base64'));
 		} catch {
-			throw InputValidationError.fromCode(errorPath, ValidationErrorCodes.INVALID_BASE64_FORMAT);
+			throw InputValidationError.fromCode(errorPath, ValidationErrorCodes.ENTRANCE_SOUND_INVALID_FORMAT);
 		}
 
 		if (audioBuffer.length > SOUNDBOARD_SOUND_MAX_SIZE) {
