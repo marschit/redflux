@@ -1,5 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import {createGuildID, createSoundboardSoundID} from '@app/api/BrandedTypes';
+import {LoginRequired} from '@app/api/middleware/AuthMiddleware';
+import {RateLimitMiddleware} from '@app/api/middleware/RateLimitMiddleware';
+import {OpenAPI} from '@app/api/middleware/ResponseTypeMiddleware';
+import {RateLimitConfigs} from '@app/api/RateLimitConfig';
+import type {HonoApp} from '@app/api/types/HonoEnv';
+import {Validator} from '@app/api/Validator';
 import {GuildIdParam, GuildIdSoundIdParam} from '@fluxer/schema/src/domains/common/CommonParamSchemas';
 import {
 	GuildSoundboardSoundCreateRequest,
@@ -10,13 +17,6 @@ import {
 	GuildSoundboardSoundResponse,
 	GuildSoundboardSoundWithUserListResponse,
 } from '@fluxer/schema/src/domains/guild/GuildSoundboardSchemas';
-import {createGuildID, createSoundboardSoundID} from '@app/api/BrandedTypes';
-import {LoginRequired} from '@app/api/middleware/AuthMiddleware';
-import {RateLimitMiddleware} from '@app/api/middleware/RateLimitMiddleware';
-import {OpenAPI} from '@app/api/middleware/ResponseTypeMiddleware';
-import {RateLimitConfigs} from '@app/api/RateLimitConfig';
-import type {HonoApp} from '@app/api/types/HonoEnv';
-import {Validator} from '@app/api/Validator';
 
 export function GuildSoundboardController(app: HonoApp) {
 	app.post(
@@ -74,7 +74,9 @@ export function GuildSoundboardController(app: HonoApp) {
 			const userId = ctx.get('user').id;
 			const guildId = createGuildID(guild_id);
 			const requestCache = ctx.get('requestCache');
-			return ctx.json(await ctx.get('guildService').content.soundboard.getSoundboardSounds({userId, guildId, requestCache}));
+			return ctx.json(
+				await ctx.get('guildService').content.soundboard.getSoundboardSounds({userId, guildId, requestCache}),
+			);
 		},
 	);
 
@@ -138,7 +140,9 @@ export function GuildSoundboardController(app: HonoApp) {
 			const userId = ctx.get('user').id;
 			const guildId = createGuildID(guild_id);
 			const soundId = createSoundboardSoundID(sound_id);
-			await ctx.get('guildService').content.soundboard.sendSoundboardSound({userId, guildId, soundId, channelId: channel_id});
+			await ctx
+				.get('guildService')
+				.content.soundboard.sendSoundboardSound({userId, guildId, soundId, channelId: channel_id});
 			return ctx.body(null, 204);
 		},
 	);
@@ -165,7 +169,9 @@ export function GuildSoundboardController(app: HonoApp) {
 			const soundId = createSoundboardSoundID(sound_id);
 			const auditLogReason = ctx.get('auditLogReason') ?? null;
 
-			await ctx.get('guildService').content.soundboard.deleteSoundboardSound({userId, guildId, soundId}, auditLogReason);
+			await ctx
+				.get('guildService')
+				.content.soundboard.deleteSoundboardSound({userId, guildId, soundId}, auditLogReason);
 
 			return ctx.body(null, 204);
 		},

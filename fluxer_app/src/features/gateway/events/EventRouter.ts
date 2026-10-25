@@ -56,6 +56,8 @@ import {handlePresenceUpdateBulk} from '@app/features/presence/events/PresenceUp
 import {handleRelationshipAdd} from '@app/features/relationship/events/RelationshipAdd';
 import {handleRelationshipRemove} from '@app/features/relationship/events/RelationshipRemove';
 import {handleRelationshipUpdate} from '@app/features/relationship/events/RelationshipUpdate';
+import {handleGuildSoundboardSoundsUpdate} from '@app/features/soundboard/events/GuildSoundboardSoundsUpdate';
+import {handleVoiceChannelEffectSend} from '@app/features/soundboard/events/VoiceChannelEffectSend';
 import {handleForumUnreads} from '@app/features/threads/events/ForumUnreads';
 import {handleThreadCreate} from '@app/features/threads/events/ThreadCreate';
 import {handleThreadDelete} from '@app/features/threads/events/ThreadDelete';
@@ -64,8 +66,6 @@ import {handleThreadMemberListUpdate} from '@app/features/threads/events/ThreadM
 import {handleThreadMembersUpdate} from '@app/features/threads/events/ThreadMembersUpdate';
 import {handleThreadMemberUpdate} from '@app/features/threads/events/ThreadMemberUpdate';
 import {handleThreadUpdate} from '@app/features/threads/events/ThreadUpdate';
-import {handleGuildSoundboardSoundsUpdate} from '@app/features/soundboard/events/GuildSoundboardSoundsUpdate';
-import {handleVoiceChannelEffectSend} from '@app/features/soundboard/events/VoiceChannelEffectSend';
 import {handleAuthSessionChange} from '@app/features/user/events/AuthSessionChange';
 import {handleUserConnectionsUpdate} from '@app/features/user/events/UserConnectionsUpdate';
 import {handleUserGuildSettingsUpdate} from '@app/features/user/events/UserGuildSettingsUpdate';

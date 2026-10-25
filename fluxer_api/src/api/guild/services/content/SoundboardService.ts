@@ -7,7 +7,10 @@ import {
 	type SoundboardSoundID,
 	type UserID,
 } from '@app/api/BrandedTypes';
-import {mapGuildSoundboardSoundsWithUsersToResponse, mapGuildSoundboardSoundToResponse} from '@app/api/guild/GuildModel';
+import {
+	mapGuildSoundboardSoundsWithUsersToResponse,
+	mapGuildSoundboardSoundToResponse,
+} from '@app/api/guild/GuildModel';
 import type {GuildRepository} from '@app/api/guild/repositories/GuildRepository';
 import type {ContentHelpers} from '@app/api/guild/services/content/ContentHelpers';
 import type {AvatarService} from '@app/api/infrastructure/AvatarService';
